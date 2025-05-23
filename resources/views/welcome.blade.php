@@ -1,8 +1,8 @@
 @extends('shopify-app::layouts.default')
 
+@vite(['resources/css/app.css', 'resources/js/app.js'])
 @section('content')
-    <link rel="stylesheet" href="{{ asset('build/assets/app-DNjP9tTQ.css') }}">
-    <script src="{{ asset('build/assets/app-T1DpEqax.js') }}"></script>
+    
 
     <div class="min-h-screen bg-gradient-to-br from-gray-100 via-white to-gray-200 py-12">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
@@ -52,7 +52,7 @@
             </div> --}}
 
             <!-- Latest 10 Orders Table -->
-            <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
+            <div class="bg-red-100 p-6 rounded-2xl shadow-lg border border-gray-100">
                 <h2 class="text-2xl font-bold mb-6">Latest 10 Orders</h2>
 
                 @if (!empty($orders) && count($orders) > 0)
