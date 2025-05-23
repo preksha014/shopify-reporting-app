@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use App\Models\Order;
 
 class Dashboard extends Controller
 {
@@ -72,9 +73,9 @@ class Dashboard extends Controller
             'X-Shopify-Access-Token' => $accessToken,
             'Content-Type' => 'application/json',
         ])->post("https://{$shopDomain}/admin/api/2024-01/graphql.json", [
-            'query' => $query,
-            'variables' => $variables,
-        ]);
+                    'query' => $query,
+                    'variables' => $variables,
+                ]);
 
         // Handle failure
         if (!$response->ok()) {
@@ -86,6 +87,23 @@ class Dashboard extends Controller
         $orders = $data['edges'];
         $pageInfo = $data['pageInfo'];
 
+        // dd($orders);
+        // Loop and save each order to the database
+        foreach ($orders as $edge) {
+            $orderNode = $edge['node'];
+
+            // Prevent duplicates
+            if (!Order::where('shopify_order_id', $orderNode['id'])->exists()) {
+                Order::create([
+                    'shopify_order_id' => $orderNode['id'],
+                    'name' => $orderNode['name'],
+                    'email' => $orderNode['email'] ?? null,
+                    'created_at_shopify' => $orderNode['createdAt'],
+                    'total_price' => $orderNode['totalPriceSet']['presentmentMoney']['amount'],
+                    'currency_code' => $orderNode['totalPriceSet']['presentmentMoney']['currencyCode'],
+                ]);
+            }
+        }
         // Pass to view
         return view('welcome', [
             'orders' => $orders,
