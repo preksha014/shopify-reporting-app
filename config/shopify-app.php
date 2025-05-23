@@ -146,7 +146,7 @@ return [
     |
     */
 
-    'app_name' => env('SHOPIFY_APP_NAME', 'AstReport'),
+    'app_name' => env('SHOPIFY_APP_NAME', 'Shopify App'),
 
     /*
     |--------------------------------------------------------------------------
@@ -193,7 +193,7 @@ return [
     |
     */
 
-    'api_scopes' => env('SHOPIFY_API_SCOPES', 'read_products,write_products,read_themes,read_orders,read_all_orders'),
+    'api_scopes' => env('SHOPIFY_API_SCOPES', 'read_products,write_products,read_themes'),
 
     /*
     |--------------------------------------------------------------------------
