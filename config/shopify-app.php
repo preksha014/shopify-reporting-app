@@ -146,7 +146,7 @@ return [
     |
     */
 
-    'app_name' => env('SHOPIFY_APP_NAME', 'Shopify App'),
+    'app_name' => env('SHOPIFY_APP_NAME', 'AstReport'),
 
     /*
     |--------------------------------------------------------------------------
@@ -160,7 +160,7 @@ return [
     |
     */
 
-    'api_version' => env('SHOPIFY_API_VERSION', '2024-04'),
+    'api_version' => env('SHOPIFY_API_VERSION', '2025-04'),
 
     /*
     |--------------------------------------------------------------------------

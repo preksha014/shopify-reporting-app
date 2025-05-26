@@ -98,7 +98,7 @@ class Dashboard extends Controller
                     'shopify_order_id' => $orderNode['id'],
                     'name' => $orderNode['name'],
                     'email' => $orderNode['email'] ?? null,
-                    'created_at_shopify' => $orderNode['createdAt'],
+                    'created_at_shopify' => date('Y-m-d H:i:s', strtotime($orderNode['createdAt'])), // FIXED
                     'total_price' => $orderNode['totalPriceSet']['presentmentMoney']['amount'],
                     'currency_code' => $orderNode['totalPriceSet']['presentmentMoney']['currencyCode'],
                 ]);
