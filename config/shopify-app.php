@@ -146,7 +146,7 @@ return [
     |
     */
 
-    'app_name' => env('SHOPIFY_APP_NAME', 'AstReport'),
+    'app_name' => env('SHOPIFY_APP_NAME', 'burhan-app'),
 
     /*
     |--------------------------------------------------------------------------
@@ -171,7 +171,7 @@ return [
     |
     */
 
-    'api_key' => env('SHOPIFY_API_KEY', ''),
+    'api_key' => env('SHOPIFY_API_KEY', '60c8b2a910f7617f36d91fb035ffddb3'),
 
     /*
     |--------------------------------------------------------------------------
@@ -182,7 +182,7 @@ return [
     |
     */
 
-    'api_secret' => env('SHOPIFY_API_SECRET', ''),
+    'api_secret' => env('SHOPIFY_API_SECRET', 'd304194817deeb0ef2db02e7801eccca'),
 
     /*
     |--------------------------------------------------------------------------

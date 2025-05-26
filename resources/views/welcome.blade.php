@@ -1,9 +1,9 @@
 @extends('shopify-app::layouts.default')
 
 @section('content')
-    <link rel="stylesheet" href="{{ asset('build/assets/app-DNjP9tTQ.css') }}">
+    <link rel="stylesheet" href="{{ asset('build/assets/app.css') }}">
     <script src="{{ asset('build/assets/app-T1DpEqax.js') }}"></script>
-
+    <h2> welcome burhan</h2>
     <div class="min-h-screen bg-gradient-to-br from-gray-100 via-white to-gray-200 py-12">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
 

@@ -23,6 +23,10 @@ class User extends Authenticatable implements IShopModel
         'name',
         'email',
         'password',
+        'plan_id',
+    'shopify_grandfathered',
+    'shopify_namespace',
+    'shopify_freemium',
     ];
 
     /**
