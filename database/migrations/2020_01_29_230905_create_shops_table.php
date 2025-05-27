@@ -18,7 +18,7 @@ class CreateShopsTable extends Migration
             $table->boolean('shopify_grandfathered')->default(false);
             $table->string('shopify_namespace')->nullable(true)->default(null);
             $table->boolean('shopify_freemium')->default(false);
-            $table->unsignedBigInteger('plan_id')->index(); 
+            $table->unsignedBigInteger('plan_id')->nullable(); 
             if (! Schema::hasColumn(Util::getShopsTable(), 'deleted_at')) {
                 $table->softDeletes();
             }
