@@ -1,7 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Dashboard;
 
-Route::get('/', [\App\Http\Controllers\Dashboard::class, 'dashboard'])
+Route::get('/', [Dashboard::class, 'dashboard'])
     ->middleware(['verify.shopify'])
     ->name('home');

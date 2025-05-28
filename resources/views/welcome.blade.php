@@ -6,7 +6,6 @@
 
     <div class="min-h-screen bg-gradient-to-br from-gray-100 via-white to-gray-200 py-12">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-
             <!-- Latest 10 Orders Table -->
             <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
                 <h2 class="text-2xl font-bold mb-6">Latest 10 Orders</h2>
@@ -48,14 +47,35 @@
                     <p class="text-gray-500">No orders found.</p>
                 @endif
 
-                @if ($hasNextPage)
-                    <div class="mt-8 text-center">
-                        <a href="{{ url()->current() }}?after={{ $nextCursor }}"
-                            class="inline-block bg-indigo-600 text-white font-semibold px-6 py-3 rounded-lg hover:bg-indigo-700 transition">
-                            Load More Orders
-                        </a>
-                    </div>
+                {{-- Order data from database --}}
+                {{-- @dd($data); --}}
+
+                {{-- @foreach ($data as $dataItem)
+                @if(isset($data['edges']))
+                @foreach ($data['edges'] as $edge)
+                <div class="order-item">
+                    <p><strong>Order ID:</strong> {{ $edge['node']['id'] ?? 'N/A' }}</p>
+                    <p><strong>Name:</strong> {{ $edge['node']['name'] ?? 'N/A' }}</p>
+                    <p><strong>Email:</strong> {{ $edge['node']['email'] ?? 'N/A' }}</p>
+                    <p><strong>Created:</strong> {{ $edge['node']['createdAt'] ?? 'N/A' }}</p>
+                    <p><strong>Total Price:</strong> {{ $edge['node']['totalPriceSet']['presentmentMoney']['amount'] ??
+                        'N/A' }}
+                    </p>
+                    <hr>
+                </div>
+                @endforeach
                 @endif
+                @endforeach --}}
+
+                <ul>
+                    @foreach ($products as $product)
+                        <li class="mb-2">
+                            <strong>{{ $product['node']['title'] }}</strong> -
+                            ${{ $product['node']['variants']['edges'][0]['node']['price'] ?? 'N/A' }}
+                        </li>
+                    @endforeach
+                </ul>
+
             </div>
         </div>
     </div>

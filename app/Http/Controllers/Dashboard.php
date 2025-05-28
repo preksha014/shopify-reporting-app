@@ -6,69 +6,84 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use App\Models\Order;
+use App\Models\Product;
 
 class Dashboard extends Controller
 {
     public function dashboard(Request $request)
     {
-        // Try getting user from Auth
         $user = Auth::user();
 
-        // First time: Get from Auth, then store in session
         if ($user && !session()->has('shopDomain') && !session()->has('accessToken')) {
             session([
                 'shopDomain' => $user->name,
-                'accessToken' => $user->password, // Replace with token column if different
+                'accessToken' => $user->password,
             ]);
         }
 
-        // Fallback to session
         $shopDomain = session('shopDomain');
         $accessToken = session('accessToken');
 
-        // dd(session()->all());
-        // If still missing, return error
         if (!$shopDomain || !$accessToken) {
             return response('Shop not authenticated.', 403);
         }
 
-        // Handle pagination cursor
-        $afterCursor = $request->query('after');
+        $orderAfter = $request->query('order_after');
+        $productAfter = $request->query('product_after');
 
-        // GraphQL query to get orders
         $query = <<<'GRAPHQL'
-        query GetOrders($first: Int!, $after: String) {
-            orders(first: $first, after: $after, sortKey: CREATED_AT, reverse: true) {
-                pageInfo {
-                    hasNextPage
-                    endCursor
-                }
-                edges {
-                    node {
-                        id
-                        name
-                        email
-                        createdAt
-                        totalPriceSet {
-                            presentmentMoney {
-                                amount
-                                currencyCode
-                            }
-                        }
-                       
-                    }
-                }
-            }
+    query GetOrdersAndProducts($ordersFirst: Int!, $ordersAfter: String, $productsFirst: Int!, $productsAfter: String) {
+      orders(first: $ordersFirst, after: $ordersAfter, sortKey: CREATED_AT, reverse: true) {
+        pageInfo {
+          hasNextPage
+          endCursor
         }
-        GRAPHQL;
+        edges {
+          node {
+            id
+            name
+            email
+            createdAt
+            totalPriceSet {
+              presentmentMoney {
+                amount
+                currencyCode
+              }
+            }
+          }
+        }
+      }
 
-        // Variables for query
+      products(first: $productsFirst, after: $productsAfter, sortKey: CREATED_AT, reverse: true) {
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+        edges {
+          node {
+            id
+            title
+            bodyHtml
+            variants(first: 1) {
+              edges {
+                node {
+                  price
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    GRAPHQL;
+
         $variables = [
-            'first' => 10,
-            'after' => $afterCursor,
+            'ordersFirst' => 10,
+            'ordersAfter' => $orderAfter,
+            'productsFirst' => 10,
+            'productsAfter' => $productAfter,
         ];
 
-        // Send request to Shopify
         $response = Http::withHeaders([
             'X-Shopify-Access-Token' => $accessToken,
             'Content-Type' => 'application/json',
@@ -77,39 +92,45 @@ class Dashboard extends Controller
                     'variables' => $variables,
                 ]);
 
-        // Handle failure
         if (!$response->ok()) {
             return response('Shopify API error: ' . $response->body(), 500);
         }
 
-        // Extract orders and pagination info
-        $data = $response->json('data.orders');
-        $orders = $data['edges'];
-        $pageInfo = $data['pageInfo'];
+        $data = $response->json('data');
 
-        // dd($orders);
-        // Loop and save each order to the database
-        foreach ($orders as $edge) {
-            $orderNode = $edge['node'];
-
-            // Prevent duplicates
-            if (!Order::where('shopify_order_id', $orderNode['id'])->exists()) {
+        // Handle Orders
+        foreach ($data['orders']['edges'] as $edge) {
+            $order = $edge['node'];
+            if (!Order::where('shopify_order_id', $order['id'])->exists()) {
                 Order::create([
-                    'shopify_order_id' => $orderNode['id'],
-                    'name' => $orderNode['name'],
-                    'email' => $orderNode['email'] ?? null,
-                    'created_at_shopify' => date('Y-m-d H:i:s', strtotime($orderNode['createdAt'])), // FIXED
-                    'total_price' => $orderNode['totalPriceSet']['presentmentMoney']['amount'],
-                    'currency_code' => $orderNode['totalPriceSet']['presentmentMoney']['currencyCode'],
+                    'shopify_order_id' => $order['id'],
+                    'name' => $order['name'],
+                    'email' => $order['email'] ?? null,
+                    'created_at_shopify' => date('Y-m-d H:i:s', strtotime($order['createdAt'])),
+                    'total_price' => $order['totalPriceSet']['presentmentMoney']['amount'],
+                    'currency_code' => $order['totalPriceSet']['presentmentMoney']['currencyCode'],
                 ]);
             }
         }
-        // Pass to view
+
+        // Handle Products
+        foreach ($data['products']['edges'] as $edge) {
+            $product = $edge['node'];
+            $price = $product['variants']['edges'][0]['node']['price'] ?? null;
+            if (!Product::where('shopify_product_id', $product['id'])->exists()) {
+                Product::create([
+                    'shopify_product_id' => $product['id'],
+                    'title' => $product['title'],
+                    'body_html' => $product['bodyHtml'],
+                    'price' => $price,
+                ]);
+            }
+        }
         return view('welcome', [
-            'orders' => $orders,
-            'hasNextPage' => $pageInfo['hasNextPage'],
-            'nextCursor' => $pageInfo['endCursor'],
-            'shopDomain' => $shopDomain,
+            'orders' => $data['orders']['edges'],
+            'products' => $data['products']['edges'],
+            'ordersPageInfo' => $data['orders']['pageInfo'],
+            'productsPageInfo' => $data['products']['pageInfo'],
         ]);
     }
 }
